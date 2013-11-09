@@ -23,6 +23,7 @@ Installation
 =============
 
 To install the plugin, download the source and put it in a your plugin directory under OpenApi.
+
 Example:
 
 /path/to/cakephp/app/plugins/OpenApi
@@ -61,8 +62,11 @@ All configuration options must be put in the core.php of your application
 Error Handling
 ===============
 
-OpenApi comes with it's own error handler 
+OpenApi comes with it's own error handler.
+
 This is to make sure that the correct output is given
+
+
 If you have your own, it's best to inherit from this one, 
 
     /**
@@ -121,7 +125,8 @@ It starts by listing your versions in the configuration:
     
     /**
      * Available API versions
-     * Api controller versions are located in APP_DIR/Controllers/<version>
+     * 
+     * Example, controller versions are located in APP_DIR/Controllers/<version>/<ControllerClass>
      *
      * Priority between the versions is from top to bottom 
      */
@@ -133,6 +138,7 @@ It starts by listing your versions in the configuration:
 
 
 Once the versions are configured, make sure to configure what you want to version.
+
 Do you want to version just the Controllers?, or also the components.
 
     /**
@@ -159,8 +165,11 @@ Auth has only 1 config setting, one that allows you to have the authorization be
     Configure::write('OpenApi.SeparateAuthorization', true);
 
 This comes in handy when we have an API call that must be accessable with multiple authentication methods.
+
 An example of this would be a 'PostController' delete method that must be accessable using basic authentication, using a certificate and at the same time by a certain server IP Address.
+
 This would mean you have 3 auth classes, one for Basic Authentication, one for the Username and Password and another one for checking IP Addresses.
+
 
 You can devide these in 2 groups:
  - User access: Basic Authentication and Certificate will return a User
@@ -183,6 +192,7 @@ When setting this to false, the authorize classes arn't devided in sub directori
   - PostDeleteAuthorize in: app/Controller/Component/Auth/Authorize/
 
 
+For more information on this topic, see the OpenApi-Samples
 
 
 
