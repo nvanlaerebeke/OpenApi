@@ -24,4 +24,7 @@ Router::parseExtensions('json', 'xml');
  * Adds versioning support to the api plugin
  * This is used in the ApiDispatcher, without it versioning will not work
  */
-Router::connect('/:version/:controller/:action/*', array());
+$versions = Configure::read('OpenApi.Versions');
+if(!empty($versions)) {
+    Router::connect('/:version/:controller/:action/*', array());
+}
