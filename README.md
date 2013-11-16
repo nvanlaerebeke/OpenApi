@@ -216,61 +216,19 @@ For more information on this topic, see the OpenApi-Samples
 
 Getting started
 =================
+To get started, see the [OpenApi-Samples Basic] [2] sample.
 
-Start off with a simple API call is easy, just create the controller class and you're good to go.
-This example has no authentication/authorization, it's a controller 'PostController' that has 2 function, a get and delete.
-
-    
-    /**
-     * Import base controller class
-     */
-    App::uses('OpenApiAppController', 'OpenApi.Controller');
-
-    /**
-     * Serie Controller, provides Api logic for Series
-     *
-     * @package       OpenApi.Controller
-     * @link          http://book.cakephp.org/2.0/en/controllers.html
-     */
-    class PostController extends OpenApiAppController {
-        /**
-         * Models to include 
-         * @var array
-         */
-        public $uses = array('Post');
-        
-        /**
-         * Authentication configuration
-         */
-        public $AuthConfig = array(
-            'get' => array(
-                'NoAuth' => array()
-            ),
-            'delete' => array(
-                'NoAuth' => array()
-            )
-        );
-        
-        /**
-         * Gets a post by id
-         * @param string $pID Post ID
-         */
-        public function get($pID) {
-            $this->Post->findByID($pID);
-        }
-        
-        /**
-         * Delete a post
-         * @param string $pID Post ID
-         */
-        public function delete($pID) {
-            $this->Post->delete($pID);
-        }
-    }
-
+Sample & tutorial list:
+- [OpenApi-Samples] [1]
+- [OpenApi-Samples Basic] [2]
+- [OpenApi-Samples Versioning] [4]
+- [OpenApi-Samples Auth] [5]
+- [OpenApi-Samples Error Handling] [3]
+- [OpenApi-Samples REST Routing] [6]
 
   [1]: https://github.com/nvanlaerebeke/OpenApi-Samples        "OpenApi-Samples"
   [2]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Basic        "OpenApi-Samples Basic"
   [3]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Error%20Handling        "OpenApi-Samples ErrorHandling"
   [4]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Versioning        "OpenApi-Samples Versioning"
   [5]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Auth        "OpenApi-Samples Auth"
+  [6]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/REST%20Routing        "OpenApi-Samples REST Routing"
