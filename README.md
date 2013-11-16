@@ -19,6 +19,15 @@ Key Features
 * Build with scalibility in mind
 * Flexible licensing(MIT License)
 
+Examples/Tutorials and documentation
+=====================================
+
+Examples and tutorials can be found in the [OpenApi-Samples] [1] project.
+
+If needed aditional documentation will be created later.
+
+
+
 Installation
 =============
 
@@ -52,20 +61,24 @@ The options are:
  - Configuration setting for splitting authorization classes by authorization type
  - Versioning
 
+All of these settings are dicussed and used in the [OpenApi-Samples Basic] [2] project.
 
 General
 ========
 
+See the OpenApi-Samples basic example
 All configuration options must be put in the core.php of your application
 
 
 Error Handling
 ===============
 
+For more details on Error handling, see the [OpenApi-Samples ErrorHandling] [3] project.
+
+
 OpenApi comes with it's own error handler.
 
 This is to make sure that the correct output is given
-
 
 If you have your own, it's best to inherit from this one, 
 
@@ -120,6 +133,8 @@ Like the error handler, OpenApi has it's own ExceptionHandler
 Versioning
 ===========
 
+For more details and samples on Versioning, see the [OpenApi-Samples Versioning] [4] project.
+
 OpenApi can version any kind of file in your app.
 It starts by listing your versions in the configuration:
     
@@ -159,6 +174,9 @@ Do you want to version just the Controllers?, or also the components.
  
 Auth
 ====
+
+This is only a small overview, for more details on the Auth process, see the [OpenApi-Samples Auth] [5] project.
+
 
 Auth has only 1 config setting, one that allows you to have the authorization be done by a certain authorization context.
 
@@ -249,3 +267,10 @@ This example has no authentication/authorization, it's a controller 'PostControl
             $this->Post->delete($pID);
         }
     }
+
+
+  [1]: https://github.com/nvanlaerebeke/OpenApi-Samples        "OpenApi-Samples"
+  [2]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Basic        "OpenApi-Samples Basic"
+  [3]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Error%20Handling        "OpenApi-Samples ErrorHandling"
+  [4]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Versioning        "OpenApi-Samples Versioning"
+  [5]: https://github.com/nvanlaerebeke/OpenApi-Samples/tree/master/Auth        "OpenApi-Samples Auth"
