@@ -170,7 +170,28 @@ Do you want to version just the Controllers?, or also the components.
         'Controller'
      );
 
+
+Add this code snipped after the config parameters shown above.
  
+     /**
+     * Clear paths that don't need to be cached because of versioning
+     * Have to do it here, before App::init is called
+     * Plugins aren't loaded yet at this stage
+     * Only run when using OpenApi's Versioning
+     */
+    $result = Cache::read('file_map', '_cake_core_');
+    if(!empty($result)) {
+        foreach(Configure::read('OpenApi.VersionTypes') as $type) {
+            foreach(Configure::read('OpenApi.Versions') as $version) {
+                foreach($result as $key => $value) {
+                    if(strpos($value, ROOT.DS.APP_DIR.DS.$type.DS.$version.DS) === 0) {
+                        $result[$key] = null;
+                    }
+                }
+            }
+        }
+        Cache::write('file_map', array_filter($result), '_cake_core_');
+    } 
  
 Auth
 ====

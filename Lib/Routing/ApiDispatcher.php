@@ -41,32 +41,20 @@ class ApiDispatcher extends Dispatcher {
     protected function _getController($pRequest, $pResponse) {
         //Setup the paths to support Versioning
         $this->__setupPaths(&$pRequest);
+        $this->__clearVersionedPaths();
         
         $ctrller = parent::_getController($pRequest, $pResponse);
         if($ctrller) {
-            //If the base class is ApiController, then map the REST methods
-            if(in_array("ApiController", $this->__getLineage($ctrller))) {
-                if(!empty($_SERVER['REQUEST_METHOD'])) {
-                    $update = false;
-                    switch($_SERVER['REQUEST_METHOD']) {
-                        case 'GET':
-                        case 'POST':
-                            break;
-                        case 'PUT':
-                            $pRequest->params['pass'][] = $pRequest->params['action'];
-                            $pRequest->params['action'] = 'edit';
-                            $update = true;
-                            break;
-                        case 'DELETE':
-                            $pRequest->params['pass'][] = $pRequest->params['action'];
-                            $pRequest->params['action'] = 'delete';
-                            $update = true;
-                            break;
-                         
-                    }
-                    if($update) {
+            //If the base class is ApiController, then map the REST methods if needed
+            if(in_array("OpenApiAppController", $this->__getLineage($ctrller))) {
+                $RESTMappings = Configure::read('OpenApi.REST.methods');
+                //When the request methods must be mapped, and the current action is not equal to the mapped action, change the request to the correct action
+                if(!empty($_SERVER['REQUEST_METHOD']) && is_array($RESTMappings) && in_array($_SERVER['REQUEST_METHOD'], array_keys($RESTMappings))) {
+                    if($pRequest->params['action'] != $RESTMappings[$_SERVER['REQUEST_METHOD']]) {
+                        $pRequest->params['pass'][] = $pRequest->params['action'];
+                        $pRequest->params['action'] = $RESTMappings[$_SERVER['REQUEST_METHOD']];
                         $ctrller = parent::_getController($pRequest, $pResponse);
-                    }
+                    }                    
                 }
             }
             return $ctrller; 
@@ -77,6 +65,7 @@ class ApiDispatcher extends Dispatcher {
     }
 
     private function __setupPaths(&$pRequest) {
+
         $apiversions = Configure::read('OpenApi.Versions');
         $versiontypes = Configure::read('OpenApi.VersionTypes');
 
@@ -96,7 +85,7 @@ class ApiDispatcher extends Dispatcher {
         if(!empty($apiversions)) {
             $found = false;
             foreach($apiversions as $version) {
-                if($version == $pRequest->params['version']) {
+                if(!empty($pRequest->params['version']) && $version == $pRequest->params['version']) {
                     $found = true;
                 }
                 if($found) {
@@ -137,5 +126,14 @@ class ApiDispatcher extends Dispatcher {
             $lineage[] = $class->getName();
         }
         return $lineage;
+    }
+    
+    private function __clearVersionedPaths() {
+        
+        /*foreach(Configure::read('OpenApi.VersionTypes') as $type) {
+            foreach(Configure::read('OpenApi.Versions') as $version) {
+                echo ROOT.DS.APP_DIR.DS.$type.DS.$version.DS."\n";
+            }
+        }*/
     }
 }
