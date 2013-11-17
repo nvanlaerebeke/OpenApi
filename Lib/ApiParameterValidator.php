@@ -31,7 +31,7 @@ class ApiParameterValidator extends Object {
     public static function Validate($pData, $pRules) {
         App::uses('CakeValidationSet', 'Model/Validator');
         foreach($pRules as $fieldName => $rules) {
-            $set = new CakeValidationSet($fieldName, $rules);
+            $set = new CakeValidationSet(strtolower($fieldName), $rules);
             $set->setRule('required', array('rule' => 'notEmpty', 'required' => true));
             $errors = $set->validate($pData);
 
