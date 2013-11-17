@@ -25,6 +25,6 @@ Router::parseExtensions('json', 'xml');
  * This is used in the ApiDispatcher, without it versioning will not work
  */
 $versions = Configure::read('OpenApi.Versions');
-if(!empty($versions)) {
+if(!empty($versions) &&  count($versions) > 0) {
     Router::connect('/:version/:controller/:action/*', array());
 }

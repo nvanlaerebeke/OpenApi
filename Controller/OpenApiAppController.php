@@ -13,6 +13,8 @@
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+ 
+App::uses('AppController', 'Controller');
 
 /**
  * Base controller class
@@ -32,7 +34,7 @@
  * -   http://munich2012.drupal.org/program/sessions/designing-http-interfaces-and-restful-web-services.html
  * 
  * @ToDo document how stateless auth works + write test to prove that the api supports stateless auth
- * @ToDo document that the authenticator will use session logon data if config < 0 for increased performace when not a stateless request
+ * @ToDo document that the authenticator will use session data if config < 0 for increased performace if not a stateless request
  * @ToDo document the steps to set up the Api Plugin(things like the dispatcher etc)
  * @ToDo document the usage of APIError, auto filling in error messages
  * @ToDo document the ip authenticator
@@ -131,27 +133,44 @@ class OpenApiAppController extends Controller {
         //path to the OpenApi plugin
         $root_path = App::pluginPath('OpenApi');
         
-        //Get the location for the Authorization classes
-        $authorizationdirectory = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authorization'.DS;
-        if(Configure::read('Api.SeparateAuthorization')) {
-            $authorizationdirectory.= ucfirst($this->params->params['controller']).ucfirst($this->params->params['action']).DS;
+        //Get the location for the Authorization classes with versioning support
+        $authorizationdirectory = array();
+        $authdirectories = array();
+        if(in_array('Controller/Component/Auth', Configure::read('OpenApi.VersionTypes'))) {
+            $versions = Configure::read('OpenApi.Versions');
+            if(!empty($versions) && count($versions) > 0) {
+                foreach($versions as $version) {
+                    $authorizationdirectory[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.$version.DS.'Authorization'.DS;
+                    $authdirectories[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.$version.DS.'Authentication'.DS;
+                }
+            }
+        }
+
+        //in case versioning wasn't configured use the base directories
+        if(empty($authorizationdirectory) || empty($authdirectories)) {
+            $authorizationdirectory[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authorization'.DS;
+            $authdirectories[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authentication'.DS;
+            // -- Base & helper classes for authentication and authorization
+            $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authentication'.DS;
+            $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authorization'.DS;
         }
         
+        //When Authorization is separate per context, add the postfix
+        if(Configure::read('OpenApi.SeparateAuthorization')) {
+            for($i = 0; $i < count($authorizationdirectory); $i++) {
+                $authorizationdirectory[$i] .= ucfirst($this->params->params['controller']).ucfirst($this->params->params['action']).DS;
+            }
+        }
+        
+        // -- Base & helper classes for authentication and authorization
+        $authorizationdirectory[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authentication'.DS;
+        $authorizationdirectory[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authorization'.DS;
+
         /**
          * Add paths to the App::paths()
          */
         App::build(
-            array (
-                'Controller/Component/Auth' => array(
-                    // -- location of our authentication classes
-                    ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authentication'.DS,
-                    // -- location for authorize classes for this controller
-                    $authorizationdirectory,
-                    // -- Base & helper classes for authentication and authorization
-                    $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authentication'.DS,
-                    $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authorization'.DS
-                )
-            )
+            array ('Controller/Component/Auth' =>  $authorizationdirectory)
         );
     }
     
@@ -175,9 +194,7 @@ class OpenApiAppController extends Controller {
         if(Configure::read('Api.Auth.Stateless')) {
             AuthComponent::$sessionKey = false;
         } 
-        //print_r($this->request);exit;
-        //$this->ApiAuth->loginAction = array('controller' => $this->request->params['query'], 'action' => 'blaat'); 
-        
+
         // -- Start the Authentication Process
         if($this->ApiAuth->login()) {
             $this->log('Authentication Successfull using method "'.Configure::read('Auth.Method').'"');
@@ -200,7 +217,7 @@ class OpenApiAppController extends Controller {
          * To make authorization more scalable, a separate class is called called <Controller><Action><(optional)AuthorizeType> class
          */
         $authname = ucfirst($this->params->params['controller']).ucfirst($this->params->params['action']);
-        if(Configure::read('Api.SeparateAuthorization')) {
+        if(Configure::read('OpenApi.SeparateAuthorization')) {
             $authtype = Configure::read('Auth.Info.authorizetype');
             if(empty($authtype)) {
                 $this->log('Warning, SeparateAuthorization setting set to true, but authenticte process didn\'t set authorizetype');
