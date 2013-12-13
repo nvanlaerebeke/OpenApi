@@ -49,10 +49,11 @@ class ApiException extends CakeException {
      * @return class Class that contans errors codes and messages
      */
     protected function GetErrorClass() {
-        $errorclass = Configure::read('Api.ErrorClass');
+        $errorclass = Configure::read('OpenApi.ErrorClass');
         if(!empty($errorclass)) {
-            if(!App::uses($errorclass, 'Lib/Error')) {
-                $errorclass = "";
+            App::uses($errorclass, 'Lib/Error');
+            if(!class_exists($errorclass)) {
+                $errorclass = null;
             }
         }
         if(empty($errorclass)) {

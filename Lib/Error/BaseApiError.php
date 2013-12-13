@@ -33,10 +33,10 @@ class BaseApiError implements IApiError {
      * @return string messsage for the given code
      */ 
     public static function GetMessageForCode($pCode) {
-        if(isset(self::$__codes[$pCode])) {
-            return self::$__codes[$pCode];
+        if(isset(static::$__codes[$pCode])) {
+            return static::$__codes[$pCode];
         }
-        return self::$__codes[500];
+        return static::$__codes[500];
     }
 
     /**
@@ -46,8 +46,8 @@ class BaseApiError implements IApiError {
      * @return int error code
      */     
     public static function GetCodeForParam($pParam) {
-        if(isset(self::$__params[$pParam])) {
-            return self::$__params[$pParam];
+        if(isset(static::$__params[$pParam])) {
+            return static::$__params[$pParam];
         }
         return 400;
     }
@@ -59,8 +59,8 @@ class BaseApiError implements IApiError {
      * @return string 
      */ 
     public static function GetMessageForValidationError($pType) {
-        if(isset(self::$__validationmessages[$pType])) {
-            return self::$__validationmessages[$pType];
+        if(isset(static::$__validationmessages[$pType])) {
+            return static::$__validationmessages[$pType];
         }
         return "";
     }
@@ -72,8 +72,8 @@ class BaseApiError implements IApiError {
      * @return int
      */     
     public static function GetCodeForValidationError($pType) {
-        if(isset(self::$__validationcodes[$pType])) {
-            return self::$__validationcodes[$pType];
+        if(isset(static::$__validationcodes[$pType])) {
+            return static::$__validationcodes[$pType];
         }
         return 400;
     }
@@ -147,7 +147,7 @@ class BaseApiError implements IApiError {
         'blank' => "This field must be blank",
         'boolean' => "This field must be a boolean",
         'cc' => "This field must be a credit card number",
-        'comparison' => "",
+        'comparison' => "This field does not validate for the required comparison",
         'custom' => "Validation was not successful for this field",
         'date' => "This field must be a date",
         'datetime' => "This field must be a datetime",

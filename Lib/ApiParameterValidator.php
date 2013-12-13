@@ -31,22 +31,30 @@ class ApiParameterValidator extends Object {
     public static function Validate($pData, $pRules) {
         App::uses('CakeValidationSet', 'Model/Validator');
         foreach($pRules as $fieldName => $rules) {
-            $set = new CakeValidationSet(strtolower($fieldName), $rules);
-            $set->setRule('required', array('rule' => 'notEmpty', 'required' => true));
-            $errors = $set->validate($pData);
+            if(!is_array($rules)) {
+                $rules = array($rules => $rules);
+            }
+            if(!isset($rules['notEmpty'])) {
+                $rules['notEmpty'] =  array('rule' => 'notEmpty', 'required' => true);
+            }
+            self::_validateField($fieldName, $rules, $pData);
+        }
+    }
 
+    private static function _validateField($pFieldName, $pRules, $pData) {
+        foreach($pRules as $name => $rule) {
+            $set = new CakeValidationSet(strtolower($pFieldName), array());
+            $set->setRule($name, $rule);
+            $errors = $set->validate($pData);
+            
             if(!empty($errors)) {
-                if(isset($rules[$errors[0]]['rule'])) {
-                    $rule = $rules[$errors[0]]['rule'];
-                } else {
+                if($name == 'notEmpty') {
                     App::uses('ApiMissingParamException', 'OpenApi.Lib/Error');
-                    throw new ApiMissingParamException($fieldName);
+                    throw new ApiMissingParamException($pFieldName); 
+                } else {
+                    App::uses('ApiValidationException', 'OpenApi.Lib/Error');
+                    throw new ApiValidationException($pFieldName, $name, ($errors[0] != $name) ? $errors[0] : null);
                 }
-                if(is_array($rule)) {
-                    $rule = $rule[0];
-                }
-                App::uses('ApiValidationException', 'OpenApi.Lib/Error');
-                throw new ApiValidationException($fieldName, $rule);
             }
         }
     }

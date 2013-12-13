@@ -37,13 +37,15 @@ class ApiValidationException extends ApiException {
      * @var string $pType
      * @var Exception $pPrevious
      */
-    public function __construct($pParam, $pType, Exception $pPrevious = null) {
-        $message = "";
+    public function __construct($pParam, $pType, $pMessage = null, Exception $pPrevious = null) {
+        $message = $pMessage;
         $errorclass = $this->GetErrorClass();
         $code = $errorclass::GetCodeForParam($pParam);
         if($code = 400) {
             $code = $errorclass::GetCodeForValidationError($pType);
-            $message = $pParam.': '.$errorclass::GetMessageForValidationError($pType);
+            if(empty($message)) {
+                $message = $pParam.': '.$errorclass::GetMessageForValidationError($pType);
+            }
         }
         parent::__construct($code, $message, $pPrevious);
     }
