@@ -30,7 +30,7 @@ class ApiException extends CakeException {
      * @var string $pMessage
      * @var Exception $pPrevious 
      */
-    public function __construct($pCode = 500, $pMessage = null, Exception $pPrevious = null) {
+    public function __construct($pCode = 666, $pMessage = null, Exception $pPrevious = null) {
         // -- Auto fills in the message when $pMessage isn't passed
         if(empty($pMessage)) {
             $class = $this->GetErrorClass();

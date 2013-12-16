@@ -112,7 +112,7 @@ class OpenApiAppController extends Controller {
 
         /** Default to configured output type, if not configured, use xml */
         if(empty($this->RequestHandler->request->params['ext'])) {
-            $type = Configure::read('Api.DefaultOutputFormat');
+            $type = Configure::read('OpenApi.DefaultOutputFormat');
             if(empty($type)) { $type = 'xml'; }
             $this->RequestHandler->renderAs($this, $type); 
         }

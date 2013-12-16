@@ -28,7 +28,6 @@ App::uses('OpenApiAppController', 'OpenApi.Controller');
  * @package       OpenApi.Controller
  */
 class ApiErrorController extends OpenApiAppController {
-    public $name = 'CakeError';
     public $uses = array();
 
     public function __construct($request = null, $response = null) {
@@ -45,6 +44,13 @@ class ApiErrorController extends OpenApiAppController {
         }
         $this->_set(array('cacheAction' => false, 'viewPath' => 'Errors'));
     }
-    
-    public function beforeFilter() {}
+        
+    public function beforeRender() {
+        parent::beforeRender();
+        
+        //modify the output to code/message format
+        $this->viewVars['code'] = $this->ExitCode;
+        $this->viewVars['message'] = $this->ExitMessage;
+        $this->viewVars['_serialize'] = array ('code', 'message');
+    }
 }

@@ -19,7 +19,6 @@
  * Include the cake ExceptionRenderer class
  */
 App::uses('ExceptionRenderer', 'Error');
-App::uses('ApiErrorController', 'OpenApi.Controller');
 
 /**
  * Exception Renderer for OpenApi
@@ -48,15 +47,24 @@ class AppExceptionRenderer extends ExceptionRenderer {
             $response->header($exception->responseHeader());
         }
         
+        $controller = Configure::read('OpenApi.ErrorController');
+        if(empty($controller)) {
+            App::uses('ApiErrorController', 'OpenApi.Controller');
+            $controller =  'ApiErrorController';
+        } else {
+            App::uses($controller, 'Controller');
+        }
+
         try {
-            $controller = new ApiErrorController($request, $response); 
+            $controller = new $controller($request, $response);
+            if(empty($controller)) { throw new Exception('Error controller cannot be found'); }
+
             $controller->startupProcess();
          } catch (Exception $e) {
             if (!empty($controller) && $controller->Components->enabled('RequestHandler')) {
                 $controller->RequestHandler->startup($controller);
             }
         }
-
         $controller->ExitCode = $exception->getCode();
         $controller->ExitMessage = $exception->getMessage();
         return $controller;
