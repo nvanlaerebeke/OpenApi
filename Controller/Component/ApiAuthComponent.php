@@ -74,10 +74,14 @@ class ApiAuthComponent extends AuthComponent {
         }
         foreach ($this->_authenticateObjects as $auth) {
             $result = $auth->authenticate($request, $response);
-            if (!empty($result) && is_array($result)) {
-                $classname = get_class($auth);
-                Configure::write('Auth.Method', substr($classname, 0, strpos($classname, 'Authenticate')));
-                return $result;
+            if (!empty($result)) {
+                if(is_array($result)) {
+                    $classname = get_class($auth);
+                    Configure::write('Auth.Method', substr($classname, 0, strpos($classname, 'Authenticate')));
+                    return $result;
+                } else {
+                    return true;
+                }
             }
         }
         return false;

@@ -15,7 +15,7 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
  
-App::uses('ApiBaseAuthenticate', 'Api.Lib'); 
+App::uses('ApiBaseAuthenticate', 'Controller/Component/Auth');
 
 /**
  * IPAddress Authenticate class for OpenApi
@@ -23,8 +23,8 @@ App::uses('ApiBaseAuthenticate', 'Api.Lib');
  * Allowed IP's must be set in the Configuration.
  * Example:
  * 
- *  Config::write(
- *      'Api.Authentication.AllowedIPs',
+ *  Configure::write(
+ *      'OpenApi.Authentication.AllowedIPs',
  *      array(
  *          '127.0.0.1',
  *          '192.168.1.1'
@@ -45,7 +45,7 @@ class IPAddressAuthenticate extends ApiBaseAuthenticate {
      */
     public function authenticate(CakeRequest $pRequest, CakeResponse $pResponse) {
         //Read allowed IPAddress list
-        $allowedips = Configure::read('Api.Authentication.AllowedIPs');
+        $allowedips = Configure::read('OpenApi.Authentication.AllowedIPs');
         
         //When we're running from CLI and the remote address isn't set, use 127.0.0.1(localhost) 
         if(!isset($_SERVER['REMOTE_ADDR']) && php_sapi_name() == 'cli') {
@@ -53,9 +53,12 @@ class IPAddressAuthenticate extends ApiBaseAuthenticate {
         } else {
             $clientip = $_SERVER['REMOTE_ADDR'];
         }
+
         if(empty($clientip) || empty($allowedips) || !in_array($clientip, $allowedips)) {
             return false;
         }
-        return true;
+        return array(
+            'authorizetype' => 'Machine'
+        );
     }
 }

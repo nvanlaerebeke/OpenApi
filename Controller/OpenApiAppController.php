@@ -188,10 +188,11 @@ class OpenApiAppController extends Controller {
 
         //Run the authentication
         $this->log('Starting Authentication...');
+        
         /** 
          * For activating the stateless(no sessions + cookies) mode, set Api.Auth.Stateless to true
          */
-        if(Configure::read('Api.Auth.Stateless')) {
+        if(Configure::read('OpenApi.Auth.Stateless')) {
             AuthComponent::$sessionKey = false;
         } 
 
