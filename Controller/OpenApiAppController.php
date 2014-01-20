@@ -75,23 +75,21 @@ class OpenApiAppController extends Controller {
      * Responsible for the setup before the action is called
      */
     public function beforeFilter() {
-        $this->log('');
-        $this->log('');
-        $this->log('-----------------------------------------------');
-        $this->log('------------START RECEIVING API CALL-----------');
-        $this->log('-----------------------------------------------');
-        $this->log('Api Call Received - Start Handling');
+        $this->debug('');
+        $this->debug('');
+        $this->debug('-----------------------------------------------');
+        $this->debug('------------START RECEIVING API CALL-----------');
+        $this->debug('-----------------------------------------------');
+        $this->debug('Api Call Received - Start Handling');
         parent::beforeFilter();
 
         // -- Make all parameter keys lower case
         if(isset($this->params->query)) { $this->params->query = array_change_key_case($this->params->query); } 
         $this->Params = $this->params->query;
         
-        if(Configure::read('debug') > 0) {
-            $this->log('Request: '.$_SERVER['HTTP_HOST'].urldecode($_SERVER['REQUEST_URI']));
-            $this->log('Recieved:');
-            $this->log($this->params->query);
-        }
+        $this->debug('Request: '.$_SERVER['HTTP_HOST'].urldecode($_SERVER['REQUEST_URI']));
+        $this->debug('Recieved:');
+        $this->debug($this->params->query);
         
         // -- Make sure the framework knows where everything is
         $this->_setupPaths();                    
@@ -118,11 +116,11 @@ class OpenApiAppController extends Controller {
         }
         
         //Log the end, for easier viewing log files
-        $this->log('-----------------------------------------------');
-        $this->log('-------------END HANDLING API CALL-------------');
-        $this->log('-----------------------------------------------');
-        $this->log('');
-        $this->log('');
+        $this->debug('-----------------------------------------------');
+        $this->debug('-------------END HANDLING API CALL-------------');
+        $this->debug('-----------------------------------------------');
+        $this->debug('');
+        $this->debug('');
     }
     
     
@@ -170,7 +168,7 @@ class OpenApiAppController extends Controller {
          * Add paths to the App::paths()
          */
         App::build(
-            array ('Controller/Component/Auth' =>  $authorizationdirectory)
+            array ('Controller/Component/Auth' =>  array_merge($authorizationdirectory, $authdirectories))
         );
     }
 
@@ -198,14 +196,14 @@ class OpenApiAppController extends Controller {
 
         // -- Start the Authentication Process
         if($this->ApiAuth->login()) {
-            $this->log('Authentication Successfull using method "'.Configure::read('Auth.Method').'"');
+            $this->debug('Authentication Successfull using method "'.Configure::read('Auth.Method').'"');
             $authresult = Configure::read('Auth.Info');
             // -- Authentication can store additional user information in 'Auth.Info'
             if(is_array($authresult)) {
                 $this->Params = array_merge($this->Params, $authresult);
             }
         } else {
-            $this->log('Authentication Failed');
+            $this->debug('Authentication Failed');
             throw new UnauthorizedException(); // -- will set 401 http status code
         }
     }
@@ -221,7 +219,7 @@ class OpenApiAppController extends Controller {
         if(Configure::read('OpenApi.SeparateAuthorization')) {
             $authtype = Configure::read('Auth.Info.authorizetype');
             if(empty($authtype)) {
-                $this->log('Warning, SeparateAuthorization setting set to true, but authenticte process didn\'t set authorizetype');
+                $this->debug('Warning, SeparateAuthorization setting set to true, but authenticte process didn\'t set authorizetype');
             } else {
                 $authname.= $authtype;
             }
@@ -229,7 +227,7 @@ class OpenApiAppController extends Controller {
         }
         $this->ApiAuth->authorize = array($authname);
 
-        $this->log('Starting Authorization using "'.$authname.'"');
+        $this->debug('Starting Authorization using "'.$authname.'"');
         $authresult = $this->ApiAuth->isAuthorized(Configure::read('Auth.Info'));
         
         if($authresult != false) {
@@ -237,9 +235,9 @@ class OpenApiAppController extends Controller {
             if(is_array($authresult)) {
                 $this->Params = array_merge($this->Params, $authresult);
             }
-            $this->log('Authorization successful');
+            $this->debug('Authorization successful');
         } else {
-            $this->log('Authorization failed');
+            $this->debug('Authorization failed');
             throw new ForbiddenException(); // -- will set 403 http status code
         }
     }
@@ -251,6 +249,12 @@ class OpenApiAppController extends Controller {
         if(!empty($this->AuthConfig[$this->params['action']][Configure::read('Auth.Method')])) {
             App::uses('ApiParameterValidator', 'OpenApi.Lib');
             ApiParameterValidator::Validate($this->params->query, $this->AuthConfig[$this->params['action']][Configure::read('Auth.Method')]);
+        }
+    }
+    
+    protected function debug($pValue) {
+        if(Configure::read('debug') > 0) {
+            $this->log($pValue);
         }
     }
 }
