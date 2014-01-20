@@ -36,7 +36,7 @@ class BaseApiError implements IApiError {
         if(isset(static::$__codes[$pCode])) {
             return static::$__codes[$pCode];
         }
-        return static::$__codes[666];
+        return static::$__codes[500];
     }
 
     /**
@@ -83,7 +83,7 @@ class BaseApiError implements IApiError {
      * @var array 
      */      
     protected static $__codes = array(
-        666 => 'Internal Error'
+        500 => 'Internal Error'
     );
     
     /**
