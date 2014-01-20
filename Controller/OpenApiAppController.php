@@ -62,7 +62,6 @@ class OpenApiAppController extends Controller {
      */    
     public $components = array(
         'OpenApi.ApiAuth',
-        'Session',
         'RequestHandler' => array(
             "loginRedirect" => false,
             "logoutRedirect" => false,
@@ -93,7 +92,7 @@ class OpenApiAppController extends Controller {
             $this->log('Recieved:');
             $this->log($this->params->query);
         }
-
+        
         // -- Make sure the framework knows where everything is
         $this->_setupPaths();                    
                 
@@ -114,6 +113,7 @@ class OpenApiAppController extends Controller {
         if(empty($this->RequestHandler->request->params['ext'])) {
             $type = Configure::read('OpenApi.DefaultOutputFormat');
             if(empty($type)) { $type = 'xml'; }
+            $this->RequestHandler->request->params['ext'] = $type;
             $this->RequestHandler->renderAs($this, $type); 
         }
         
@@ -132,7 +132,7 @@ class OpenApiAppController extends Controller {
     private function _setupPaths() {
         //path to the OpenApi plugin
         $root_path = App::pluginPath('OpenApi');
-        
+
         //Get the location for the Authorization classes with versioning support
         $authorizationdirectory = array();
         $authdirectories = array();
@@ -173,7 +173,7 @@ class OpenApiAppController extends Controller {
             array ('Controller/Component/Auth' =>  $authorizationdirectory)
         );
     }
-    
+
     /**
      * Auth part of every api call
      * Runs the Authentication and Authorization for the api call
@@ -188,7 +188,7 @@ class OpenApiAppController extends Controller {
 
         //Run the authentication
         $this->log('Starting Authentication...');
-        
+
         /** 
          * For activating the stateless(no sessions + cookies) mode, set Api.Auth.Stateless to true
          */

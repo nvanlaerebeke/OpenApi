@@ -31,6 +31,7 @@ App::uses('AuthComponent', 'Controller/Component');
  * @package       OpenApi.Controller.Auth
  */
 class ApiAuthComponent extends AuthComponent {
+
     /**
      * Login method
      * Difference with the base class is that we do not want to refresh the session id every time we authenticate
@@ -38,7 +39,10 @@ class ApiAuthComponent extends AuthComponent {
      * @var array $user 
      * @return bool
      */
-    public function login($user = null) {
+    public function login($user = null, $config = null) {
+        if(!empty($config)) {
+            $this->authenticate = $config;
+        }
         if(!empty(self::$sessionKey)) {
             if(Configure::read('debug') > 0) {
                 $this->Session->delete(self::$sessionKey);
@@ -113,6 +117,9 @@ class ApiAuthComponent extends AuthComponent {
         return false;
     }
     
+    protected function _unauthenticated(Controller $controller) {
+        return false;
+    }
     /**
      * Looks up the user
      * Difference with the original function is that we don't trigger a session start if it's not needed

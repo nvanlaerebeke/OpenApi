@@ -41,16 +41,23 @@ class ApiDispatcher extends Dispatcher {
     protected function _getController($pRequest, $pResponse) {
         //Setup the paths to support Versioning
         $this->__setupPaths(&$pRequest);
-        $this->__clearVersionedPaths();
-        
+
         $ctrller = parent::_getController($pRequest, $pResponse);
-        if($ctrller) {
+        if($ctrller || in_array($pRequest->params['controller'], Configure::read('OpenApi.Versions'))) {
+            if(in_array($pRequest->params['controller'], Configure::read('OpenApi.Versions'))) {
+                $pRequest->params['version'] = $pRequest->params['controller'];
+                $pRequest->params['controller'] = $pRequest->params['action'];
+                $pRequest->params['action'] = null;
+                $pRequest->params['pass'] = array_diff($pRequest->params['pass'], array($pRequest->params['controller']));
+                $ctrller = parent::_getController($pRequest, $pResponse);
+            }
+
             //If the base class is ApiController, then map the REST methods if needed
             if(in_array("OpenApiAppController", $this->__getLineage($ctrller))) {
                 $RESTMappings = Configure::read('OpenApi.REST.methods');
                 //When the request methods must be mapped, and the current action is not equal to the mapped action, change the request to the correct action
                 if(!empty($_SERVER['REQUEST_METHOD']) && is_array($RESTMappings) && in_array($_SERVER['REQUEST_METHOD'], array_keys($RESTMappings))) {
-                    if($pRequest->params['action'] != $RESTMappings[$_SERVER['REQUEST_METHOD']]) {
+                    if($pRequest->params['action'] != $RESTMappings[$_SERVER['REQUEST_METHOD']] && !in_array($pRequest->params['action'], $RESTMappings)) {
                         $pRequest->params['pass'][] = $pRequest->params['action'];
                         $pRequest->params['action'] = $RESTMappings[$_SERVER['REQUEST_METHOD']];
                         $ctrller = parent::_getController($pRequest, $pResponse);
@@ -65,13 +72,14 @@ class ApiDispatcher extends Dispatcher {
     }
 
     private function __setupPaths(&$pRequest) {
-
         $apiversions = Configure::read('OpenApi.Versions');
         $versiontypes = Configure::read('OpenApi.VersionTypes');
 
         //no valid version was given in the URL, assume it was the ctrller
         if(!empty($apiversions) && isset($pRequest->params['version']) && !in_array($pRequest->params['version'], $apiversions)) {
-            $pRequest->params['pass'][] = $pRequest->params['action'];
+            if(isset($pRequest->params['action'])) {
+                $pRequest->params['pass'][] = $pRequest->params['action'];
+            }
             $pRequest->params['action'] = $pRequest->params['controller'];
             $pRequest->params['controller'] = $pRequest->params['version'];
             $pRequest->params['version'] = $apiversions[0];
@@ -82,7 +90,7 @@ class ApiDispatcher extends Dispatcher {
          * We never want to use newer versions when we requested an older version
          */
         $newversions = array();
-        if(!empty($apiversions)) {
+        if(!empty($apiversions) && !empty($pRequest->params['version'])) {
             $found = false;
             foreach($apiversions as $version) {
                 if(!empty($pRequest->params['version']) && $version == $pRequest->params['version']) {
@@ -126,14 +134,5 @@ class ApiDispatcher extends Dispatcher {
             $lineage[] = $class->getName();
         }
         return $lineage;
-    }
-    
-    private function __clearVersionedPaths() {
-        
-        /*foreach(Configure::read('OpenApi.VersionTypes') as $type) {
-            foreach(Configure::read('OpenApi.Versions') as $version) {
-                echo ROOT.DS.APP_DIR.DS.$type.DS.$version.DS."\n";
-            }
-        }*/
     }
 }
