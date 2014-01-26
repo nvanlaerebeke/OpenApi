@@ -26,6 +26,27 @@ App::uses('Dispatcher', 'Routing');
  * @package       OpenApi.Routing
  */
 class ApiDispatcher extends Dispatcher {
+    
+    /**
+     * See Dispatcher dispatch function for more info
+     * 
+     * Addition is that here we detect the version we're trying to use
+     * Creates a new CakeRequest object with the version as a parameter 
+     */
+    public function dispatch(CakeRequest $pRequest, CakeResponse $pResponse, $pAdditionalParams = array()) {
+        /**
+         * We could use routes for getting the correct result, but doing it like this is much easier. 
+         */
+        $parts = explode('/', $pRequest->url);
+        $version = (isset($parts[0])) ? $parts[0] : '';
+
+        if(!empty($version) && in_array($version, Configure::read('OpenApi.Versions'))) {
+            $pRequest = new CakeRequest(str_replace($version, '', $pRequest->url));
+            $pRequest->params['version'] = $version; 
+        }
+        parent::dispatch($pRequest, $pResponse, $pAdditionalParams);
+    }    
+    
     /**
      * Gets the correct versioned controller the application needs
      * Priority will be given to the version entered in the URL
@@ -41,70 +62,37 @@ class ApiDispatcher extends Dispatcher {
     protected function _getController($pRequest, $pResponse) {
         //Setup the paths to support Versioning
         $this->__setupPaths(&$pRequest);
-
-        $ctrller = parent::_getController($pRequest, $pResponse);
-        if($ctrller || in_array($pRequest->params['controller'], Configure::read('OpenApi.Versions'))) {
-            if(in_array($pRequest->params['controller'], Configure::read('OpenApi.Versions'))) {
-                $pRequest->params['version'] = $pRequest->params['controller'];
-                $pRequest->params['controller'] = $pRequest->params['action'];
-                $pRequest->params['action'] = null;
-                $pRequest->params['pass'] = array_diff($pRequest->params['pass'], array($pRequest->params['controller']));
-                $ctrller = parent::_getController($pRequest, $pResponse);
-            }
-
-            //If the base class is ApiController, then map the REST methods if needed
-            if(in_array("OpenApiAppController", $this->__getLineage($ctrller))) {
-                $RESTMappings = Configure::read('OpenApi.REST.methods');
-                //When the request methods must be mapped, and the current action is not equal to the mapped action, change the request to the correct action
-                if(!empty($_SERVER['REQUEST_METHOD']) && is_array($RESTMappings) && in_array($_SERVER['REQUEST_METHOD'], array_keys($RESTMappings))) {
-                    if($pRequest->params['action'] != $RESTMappings[$_SERVER['REQUEST_METHOD']] && !in_array($pRequest->params['action'], $RESTMappings)) {
-                        $pRequest->params['pass'][] = $pRequest->params['action'];
-                        $pRequest->params['action'] = $RESTMappings[$_SERVER['REQUEST_METHOD']];
-                        $ctrller = parent::_getController($pRequest, $pResponse);
-                    }                    
-                }
-            }
-            return $ctrller; 
-        } else {
-            App::uses('ApiException', 'OpenApi.Lib');
-            throw new NotFoundException();
-        }
+        
+        return parent::_getController($pRequest, $pResponse);
     }
 
     private function __setupPaths(&$pRequest) {
         $apiversions = Configure::read('OpenApi.Versions');
         $versiontypes = Configure::read('OpenApi.VersionTypes');
 
-        //no valid version was given in the URL, assume it was the ctrller
-        if(!empty($apiversions) && isset($pRequest->params['version']) && !in_array($pRequest->params['version'], $apiversions)) {
-            if(isset($pRequest->params['action'])) {
-                $pRequest->params['pass'][] = $pRequest->params['action'];
-            }
-            $pRequest->params['action'] = $pRequest->params['controller'];
-            $pRequest->params['controller'] = $pRequest->params['version'];
-            $pRequest->params['version'] = $apiversions[0];
-        }
-
         /**
-         * Filter out newer versions then what's requested
-         * We never want to use newer versions when we requested an older version
+         * - Filter out newer versions then what's requested
+         *   We never want to use newer versions when we requested an older version
+         * 
+         * - Add paths to the App::paths that we want versioned
+         * 
          */
         $newversions = array();
-        if(!empty($apiversions) && !empty($pRequest->params['version'])) {
-            $found = false;
-            foreach($apiversions as $version) {
-                if(!empty($pRequest->params['version']) && $version == $pRequest->params['version']) {
-                    $found = true;
-                }
-                if($found) {
-                    $newversions[] = $version;
-                }
-            }
-            $apiversions = $newversions;
-            Configure::write('OpenApi.Versions', $apiversions);
-        }
-
         if(!empty($apiversions) && !empty($versiontypes)) {
+            if(!empty($pRequest->params['version'])) {
+                $found = false;
+                foreach($apiversions as $version) {
+                    if(!empty($pRequest->params['version']) && $version == $pRequest->params['version']) {
+                        $found = true;
+                    }
+                    if($found) {
+                        $newversions[] = $version;
+                    }
+                }
+                $apiversions = $newversions;
+                Configure::write('OpenApi.Versions', $apiversions);
+            }
+            
             foreach($versiontypes as $type) {
                 $paths = array();
                 if(isset($pRequest->params['version']) && in_array($pRequest->params['version'], $apiversions)) {
@@ -119,20 +107,5 @@ class ApiDispatcher extends Dispatcher {
                 App::build(array($type => $paths), App::PREPEND);
             }
         }        
-    }
-
-    /**
-     * Gets the inheritance for an object
-     * @param object $pObject
-     * @return array List of ancestors for $pObject  
-     */
-    private function __getLineage($pObject) {
-        $class = new ReflectionClass($pObject);
-        $lineage = array();
-
-        while ($class = $class->getParentClass()) {
-            $lineage[] = $class->getName();
-        }
-        return $lineage;
     }
 }

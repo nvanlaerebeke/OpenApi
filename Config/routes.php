@@ -14,17 +14,24 @@
  * @package       OpenApi.Config
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+*/
 
-/**
- * Parse the json and xml extensions for generating output automatically
- */
-Router::parseExtensions('json', 'xml');
+    /*Router::resourceMap(array(
+        array('action' => 'index', 'method' => 'GET', 'id' => false),
+        array('action' => 'view', 'method' => 'GET', 'id' => true),
+        array('action' => 'add', 'method' => 'POST', 'id' => false),
+        array('action' => 'edit', 'method' => 'PUT', 'id' => true),
+        array('action' => 'delete', 'method' => 'DELETE', 'id' => true),
+        array('action' => 'update', 'method' => 'POST', 'id' => true)
+    ));*/
+    Router::mapResources(array(':controller'));
+    Router::parseExtensions(); 
 
 /** 
  * Adds versioning support to the api plugin
  * This is used in the ApiDispatcher, without it versioning will not work
  */
-$versions = Configure::read('OpenApi.Versions');
-if(!empty($versions) &&  count($versions) > 0) {
-    Router::connect('/:version/:controller/:action/*', array());
-}
+    $versions = Configure::read('OpenApi.Versions');
+    if(!empty($versions) &&  count($versions) > 0) {
+        Router::connect('/:controller/:action/*', array());
+    }

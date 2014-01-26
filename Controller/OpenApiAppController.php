@@ -33,12 +33,14 @@ App::uses('AppController', 'Controller');
  * -   http://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm
  * -   http://munich2012.drupal.org/program/sessions/designing-http-interfaces-and-restful-web-services.html
  * 
- * @ToDo document how stateless auth works + write test to prove that the api supports stateless auth
- * @ToDo document that the authenticator will use session data if config < 0 for increased performace if not a stateless request
- * @ToDo document the steps to set up the Api Plugin(things like the dispatcher etc)
- * @ToDo document the usage of APIError, auto filling in error messages
- * @ToDo document the ip authenticator
- * @ToDo document that error codes will be set in the controller $this->ExitCode and $this->ExitMessage
+ * @ToDo document: how stateless auth works + write test to prove that the api supports stateless auth
+ * @ToDo document: the steps to set up the Api Plugin(things like the dispatcher etc)
+ * @ToDo document: the usage of APIError, auto filling in error messages
+ * @ToDo document: in the ErrorHandling sample add a sample for extending the ApiError class(currently it's pointing to the validation sample for that)
+ * @ToDo document: in the ErrorHandling sample add an example on how to manipulate the http status codes for errors
+ * @ToDo document: in the REST Routing sample, show an example on how to modify the default routings and regex that only uses numbers by default  
+ * @ToDo document: the ip authenticator
+ * @ToDo document: that error codes will be set in the controller $this->ExitCode and $this->ExitMessage
  * @ToDo: Unit tests
  *
  * @package       OpenApi.Controller
@@ -181,6 +183,7 @@ class OpenApiAppController extends Controller {
         if(isset($this->AuthConfig[strtolower($this->params['action'])])) {
             $this->ApiAuth->authenticate = array_keys($this->AuthConfig[strtolower($this->params['action'])]);
         } else {
+            $this->debug('UnAuthozied Access: no configuration found for "' . strtolower($this->params['action'] . '"'));
             throw new UnauthorizedException();
         }
 
