@@ -146,14 +146,13 @@ class OpenApiAppController extends Controller {
             }
         }
 
-        //in case versioning wasn't configured use the base directories
-        if(empty($authorizationdirectory) || empty($authdirectories)) {
-            $authorizationdirectory[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authorization'.DS;
-            $authdirectories[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authentication'.DS;
-            // -- Base & helper classes for authentication and authorization
-            $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authentication'.DS;
-            $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authorization'.DS;
-        }
+        //include the base directories in case no versioned files can be found
+        $authorizationdirectory[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authorization'.DS;
+        $authdirectories[] = ROOT.DS.APP_DIR.DS.'Controller/Component/Auth'.DS.'Authentication'.DS;
+        // -- Base & helper classes for authentication and authorization
+        $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authentication'.DS;
+        $authdirectories[] = $root_path.'Controller'.DS.'Component'.DS.'Auth'.DS.'Authorization'.DS;
+
         
         //When Authorization is separate per context, add the postfix
         if(Configure::read('OpenApi.SeparateAuthorization')) {
