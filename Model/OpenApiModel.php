@@ -2,14 +2,14 @@
 /**
  * Custom ApiModel class file
  *
- * Copyright (c)  *
+ * Copyright (c)  
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright (c) Crazy <info@crazytje.com>
  * @link          http://blog.crazytje.com 
- * @package       OpenApi.Controller.Authorize
+ * @package       OpenApi.Model
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -38,6 +38,9 @@ class OpenApiModel extends OpenApiAppModel {
      * $var array $results
      */
     protected function _findApilist($state, $query, $results = array()) {
+        /**
+         * Manipulate the return value in the 'after' state
+         */
         if ($state === 'after') {
             if(!empty($results) && count($results) > 0) {
                 $key = key($results[0]);

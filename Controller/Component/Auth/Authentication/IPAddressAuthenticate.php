@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) Crazy <info@crazytje.com>
  * @link          http://blog.crazytje.com 
- * @package       OpenApi.Controller.Authentication
+ * @package       OpenApi.Controller.Auth.Authentication
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -33,7 +33,7 @@ App::uses('ApiBaseAuthenticate', 'Controller/Component/Auth');
  *
  * When running from CLI, 127.0.0.1 is  used as IP automatically
  * 
- * @package       OpenApi.Controller.Authentication
+ * @package       OpenApi.Controller.Auth.Authentication
  */
 class IPAddressAuthenticate extends ApiBaseAuthenticate {
     /**
@@ -41,7 +41,7 @@ class IPAddressAuthenticate extends ApiBaseAuthenticate {
      *
      * @var CakeRequest $pRequest
      * @var CakeResponse $pResponse
-     * @return mixed true/false or an array with parameters 
+     * @return mixed false or an array with authorization type 'Machine'
      */
     public function authenticate(CakeRequest $pRequest, CakeResponse $pResponse) {
         //Read allowed IPAddress list

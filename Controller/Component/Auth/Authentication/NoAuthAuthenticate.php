@@ -9,10 +9,11 @@
  *
  * @copyright     Copyright (c) Crazy <info@crazytje.com>
  * @link          http://blog.crazytje.com 
- * @package       OpenApi.Controller.Authentication
+ * @package       OpenApi.Controller.Auth.Authentication
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+ 
 App::uses('ApiBaseAuthenticate', 'Controller/Component/Auth');
 
 /**
@@ -21,7 +22,7 @@ App::uses('ApiBaseAuthenticate', 'Controller/Component/Auth');
  * Authenticate call used when no real authentication is needed
  * Is used to normalize the Authenticate classes output
  * 
- * @package       OpenApi.Controller.Authentication
+ * @package       OpenApi.Controller.Auth.Authentication
  */
 class NoAuthAuthenticate extends ApiBaseAuthenticate {
     /**
@@ -29,7 +30,7 @@ class NoAuthAuthenticate extends ApiBaseAuthenticate {
      *
      * @var CakeRequest $pRequest
      * @var CakeResponse $pResponse
-     * @return mixed true or an array with parameters 
+     * @return mixed true or an array authorization type 'NoAuth' 
      */
     public function authenticate(CakeRequest $request, CakeResponse $response) {
         return array(

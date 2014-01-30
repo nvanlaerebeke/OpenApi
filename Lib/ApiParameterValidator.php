@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Routing
+ * @package       OpenApi.Lib
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -41,6 +41,14 @@ class ApiParameterValidator extends Object {
         }
     }
 
+    /**
+     * Validates a single field with 1 or more rules
+     * 
+     * @param string $pFieldName
+     * @param array $pRules
+     * @param array $pData
+     * @return null
+     */
     private static function _validateField($pFieldName, $pRules, $pData) {
         foreach($pRules as $name => $rule) {
             $set = new CakeValidationSet(strtolower($pFieldName), array());

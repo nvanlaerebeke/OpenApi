@@ -28,6 +28,13 @@ App::uses('AuthComponent', 'Controller/Component');
  *  - Successfull authentication method is stored in Configure::read('Auth.Method')
  *  - Authorization can return more then just true/false
  * 
+ * To use stateless authentication make sure the following configuration setting is set to true in your core.php file:
+ * 
+ * Configure::write('OpenApi.stateless', true);
+ * 
+ * Authentication information(what the authenticate class returns) is written in:
+ * Configure::read('Auth.Info'); 
+ * 
  * @package       OpenApi.Controller.Auth
  */
 class ApiAuthComponent extends AuthComponent {

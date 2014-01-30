@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -27,7 +27,7 @@ App::uses('ExceptionRenderer', 'Error');
  *
  * Sets the ExitCode and ExitMessage on the controller on exceptions
  * 
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  */
 class AppExceptionRenderer extends ExceptionRenderer {
     /**

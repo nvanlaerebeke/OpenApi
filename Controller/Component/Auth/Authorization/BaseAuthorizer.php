@@ -9,7 +9,7 @@
  *
  * @copyright     Copyright (c) Crazy <info@crazytje.com>
  * @link          http://blog.crazytje.com 
- * @package       OpenApi.Controller.Authorize
+ * @package       OpenApi.Controller.Auth.Authorization
  * @since         OpenApi v 0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -17,7 +17,7 @@
 /**
  * Base Authorizer class for OpenApi
  * 
- * @package       OpenApi.Controller.Authorize
+ * @package       OpenApi.Controller.Auth.Authorization
  */
 abstract class BaseAuthorizer extends Object {
 

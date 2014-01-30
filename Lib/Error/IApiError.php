@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -18,7 +18,7 @@
 /**
  * Api Error interface containing functions needed to be implemented for the Api.ErrorClass 
  *  
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  */
 interface IApiError {
     /**

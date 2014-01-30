@@ -28,8 +28,12 @@ App::uses('OpenApiAppController', 'OpenApi.Controller');
  * @package       OpenApi.Controller
  */
 class ApiErrorController extends OpenApiAppController {
-    public $uses = array();
-
+    /**
+     * __construct
+     *
+     * @param CakeRequest $request
+     * @param CakeResponse $response
+     */
     public function __construct($request = null, $response = null) {
         parent::__construct($request, $response);
         $this->constructClasses();
@@ -44,7 +48,15 @@ class ApiErrorController extends OpenApiAppController {
         }
         $this->_set(array('cacheAction' => false, 'viewPath' => 'Errors'));
     }
-        
+
+
+    /**
+     * Called after the controller action is run, but before the view is rendered. You can use this method
+     * to perform logic or set view variables that are required on every request.
+     *
+     * @return void
+     * @link http://book.cakephp.org/2.0/en/controllers.html#request-life-cycle-callbacks
+     */
     public function beforeRender() {
         parent::beforeRender();
         

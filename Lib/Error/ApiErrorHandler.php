@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -23,7 +23,7 @@ App::uses('ApiException', 'OpenApi.Lib/Error');
 /**
  * Api error handler class providing extra handing for errors
  *  
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  * @link          http://book.cakephp.org/2.0/en/controllers.html
  */
 class ApiErrorHandler extends ErrorHandler {

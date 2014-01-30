@@ -24,7 +24,15 @@
         array('action' => 'delete', 'method' => 'DELETE', 'id' => true),
         array('action' => 'update', 'method' => 'POST', 'id' => true)
     ));*/
+    
+    /**
+     * mapResources for all controllers
+     */
     Router::mapResources(array(':controller'));
+    
+    /**
+     * Parse the xml & json extensions
+     */
     Router::parseExtensions(); 
 
 /** 

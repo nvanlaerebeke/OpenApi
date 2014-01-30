@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -23,7 +23,7 @@ App::uses('ApiException', 'OpenApi.Lib/Error');
 /**
  * Exception class used for missing params, based on ApiException
  *  
- * @package       OpenApi.Error
+ * @package       OpenApi.Lib.Error
  */
 class ApiMissingParamException extends ApiException {
     /**

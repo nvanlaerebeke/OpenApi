@@ -10,7 +10,7 @@
  *
  * @copyright     Copyright (c) 
  * @link          http://blog.crazytje.com
- * @package       OpenApi.Routing
+ * @package       OpenApi.Lib.Routing
  * @since         OpenApi v0.0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -23,7 +23,7 @@ App::uses('Dispatcher', 'Routing');
 /**
  * Custom Dispatcher for dispatching to the correct controller
  *
- * @package       OpenApi.Routing
+ * @package       OpenApi.Lib.Routing
  */
 class ApiDispatcher extends Dispatcher {
     
@@ -32,6 +32,10 @@ class ApiDispatcher extends Dispatcher {
      * 
      * Addition is that here we detect the version we're trying to use
      * Creates a new CakeRequest object with the version as a parameter 
+     * 
+     * @param CakeRequest $pRequest
+     * @param CakeResponse $pResponse
+     * @param array $pAdditionalParams
      */
     public function dispatch(CakeRequest $pRequest, CakeResponse $pResponse, $pAdditionalParams = array()) {
         /**
@@ -59,14 +63,19 @@ class ApiDispatcher extends Dispatcher {
      * @param CakeResponse $pResponse
      * @return Controller 
      */
-    protected function _getController($pRequest, $pResponse) {
+    protected function _getController(CakeRequest $pRequest, CakeResponse $pResponse) {
         //Setup the paths to support Versioning
         $this->__setupPaths(&$pRequest);
         
         return parent::_getController($pRequest, $pResponse);
     }
 
-    private function __setupPaths(&$pRequest) {
+    /**
+     * Sets up the App::paths() to find the correct version of the classes we want
+     * 
+     * @param  @pRequest
+     */
+    private function __setupPaths(CakeRequest &$pRequest) {
         $apiversions = Configure::read('OpenApi.Versions');
         $versiontypes = Configure::read('OpenApi.VersionTypes');
 
