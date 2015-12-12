@@ -3,7 +3,7 @@ OpenApi
 
 OpenApi is a CakePHP plugin to enable rapid development for REST Api's.
 
-Note that the CakePHP 3 version does not yet have all the features the CakePHP 2 did
+Note that the CakePHP 3 version does not yet have all the features the CakePHP 2 version did
 
 Key Features
 ==============
