@@ -109,9 +109,12 @@ class AppController extends BaseController {
         $this->debug('-----------------------------------------------');
         $this->debug('Api Call Received - Start Handling');
         parent::beforeFilter($event);
+                
+        // -- Make all parameter keys lower case & merge the request data(post) with the query(get)
+        if(isset($this->request->query)) { $this->request->query = array_change_key_case($this->request->query); }
+        if(isset($this->request->data)) { $this->request->data = array_change_key_case($this->request->data); } 
+        $this->request->query = array_merge($this->request->query, $this->request->data);
         
-        // -- Make all parameter keys lower case
-        if(isset($this->request->query)) { $this->request->query = array_change_key_case($this->request->query); } 
         $this->Params = $this->request->query;
         
         $this->debug('Request: '.$_SERVER['HTTP_HOST'].urldecode($_SERVER['REQUEST_URI']));
