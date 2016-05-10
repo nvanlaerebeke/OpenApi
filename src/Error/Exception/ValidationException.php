@@ -16,12 +16,14 @@
  */
 namespace OpenApi\Error\Exception;
 
+use OpenApi\Error\Exception\OpenApiException;
+
 /**
  * Exception class used for invalid params, based on ApiException
  *
  * @package       OpenApi.Lib.Error
  */
-class ValidationException extends OpenApi\Error\Exception\OpenApiException {
+class ValidationException extends OpenApiException {
 
     /**
      * Constructor for the ApiValidationException
@@ -39,6 +41,7 @@ class ValidationException extends OpenApi\Error\Exception\OpenApiException {
         $code = $errorclass::GetCodeForParam($pParam);
         if($code = 400) {
             $code = $errorclass::GetCodeForValidationError($pType);
+
             if(empty($message)) {
                 $message = $pParam.': '.$errorclass::GetMessageForValidationError($pType);
             }

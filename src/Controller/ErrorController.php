@@ -2,14 +2,14 @@
 /**
  * class file for the "ErrorController"
  *
- * Copyright (c) 
+ * Copyright (c)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright (c) Crazy <info@crazytje.com>
- * @link          http://blog.crazytje.com 
+ * @link          http://blog.crazytje.com
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
 **/
 
@@ -22,7 +22,7 @@ use Cake\Core\Configure;
 /**
  * Class that handles all Error Output
  * We needed to extend the OpenApi AppController so that our output is generated automatically & in the correct format
- * This is a copy of the Core CakeErrorController, for more information, see the Core class docs 
+ * This is a copy of the Core CakeErrorController, for more information, see the Core class docs
  */
 class ErrorController extends \OpenApi\Controller\AppController {
     /**
@@ -47,7 +47,7 @@ class ErrorController extends \OpenApi\Controller\AppController {
 
     /**
      * Do not apply anything beforeFilter does
-     * @ToDo: call the parent without it running the auth process again 
+     * @ToDo: call the parent without it running the auth process again
      */
     public function beforeFilter(Event $event) { }
 
@@ -59,11 +59,11 @@ class ErrorController extends \OpenApi\Controller\AppController {
      */
     public function beforeRender(Event $event) {
         parent::beforeRender($event);
-  
+
          $this->set([
             'code' => $this->ExitCode,
             'message' => $this->ExitMessage,
             '_serialize' => array ('code', 'message')
         ]);
-    }      
+    }
 }

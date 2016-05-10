@@ -59,7 +59,6 @@ class OpenApiException extends CakeException {
     protected function GetErrorClass() {
         $errorclass = Configure::read('OpenApi.ErrorClass');
         if(!empty($errorclass)) {
-            App::uses($errorclass, 'Lib/Error');
             if(!class_exists($errorclass)) {
                 $errorclass = null;
             }
@@ -67,7 +66,6 @@ class OpenApiException extends CakeException {
         if(empty($errorclass)) {
             $this->log('ApiError class not found!, no message auto filled in');
             $errorclass = 'OpenApi\Error\OpenApiError';
-            //App::uses($errorclass, 'OpenApi.Lib/Error');
         }
         return $errorclass;
     }

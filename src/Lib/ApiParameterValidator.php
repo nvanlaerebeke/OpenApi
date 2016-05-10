@@ -45,9 +45,9 @@ class ApiParameterValidator {
             if(!is_array($rules)) {
                 $rules = array($rules => [ 'rule' => $rules ]);
             }
-            if(!isset($rules['notBlank'])) {
+            /*if(!isset($rules['notBlank'])) {
                 $rules['notBlank'] =  array('rule' => 'notBlank', 'required' => true);
-            }
+            }*/
             self::_validateField($fieldName, $rules, $pData);
         }
     }
@@ -61,15 +61,18 @@ class ApiParameterValidator {
      */
     private static function _validateField($pFieldName, $pRules, $pData) {
         $validator = new Validator();
+        $validator->requirePresence($pFieldName);
         foreach($pRules as $name => $rule) {
-            $errors = $validator->add($pFieldName, $name, new ValidationRule($rule))->errors($pData);
-            if(!empty($errors)) {
-                $errors = array_values($errors[$pFieldName]);
-                if($name == 'notBlank') {
-                    throw new MissingParameterException($pFieldName);
-                } else {
-                    throw new ValidationException($pFieldName, $name, ($errors[0] != $name) ? $errors[0] : null);
-                }
+            $validator->add($pFieldName, $name, $rule);
+        }
+        $errors = $validator->errors($pData);
+        if(!empty($errors)) {
+            $name = array_keys($errors[$pFieldName])[0];
+            $msg = array_values($errors[$pFieldName])[0];
+            if($name == 'notEmpty' || $name == '_required') {
+                throw new MissingParameterException($pFieldName);
+            } else {
+                throw new ValidationException($pFieldName, $name);
             }
         }
     }
