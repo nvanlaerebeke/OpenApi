@@ -138,6 +138,8 @@ class OpenApiError implements IOpenApiError {
      * @var array
      */
     protected static $__validationmessages = array(
+        '_required' => "This field must be blank",
+        '_empty' => "This field cannot be left blank",
         'alphaNumeric' => "This field must be an alpha-numeric value",
         'between' => "This field must fall between the required values",
         'blank' => "This field must be blank",

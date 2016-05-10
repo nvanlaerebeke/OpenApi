@@ -51,6 +51,7 @@ class ApiParameterValidator {
             self::_validateField($fieldName, $rules, $pData);
         }
     }
+
     /**
      * Validates a single field with 1 or more rules
      *
@@ -61,7 +62,7 @@ class ApiParameterValidator {
      */
     private static function _validateField($pFieldName, $pRules, $pData) {
         $validator = new Validator();
-        $validator->requirePresence($pFieldName);
+        $validator->requirePresence($pFieldName)->notEmpty($pFieldName);
         foreach($pRules as $name => $rule) {
             $validator->add($pFieldName, $name, $rule);
         }
@@ -69,7 +70,7 @@ class ApiParameterValidator {
         if(!empty($errors)) {
             $name = array_keys($errors[$pFieldName])[0];
             $msg = array_values($errors[$pFieldName])[0];
-            if($name == 'notEmpty' || $name == '_required') {
+            if($name == 'notEmpty' || $name == '_required' || $name == '_empty') {
                 throw new MissingParameterException($pFieldName);
             } else {
                 throw new ValidationException($pFieldName, $name);
