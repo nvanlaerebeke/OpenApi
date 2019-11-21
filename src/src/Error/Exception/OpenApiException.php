@@ -57,16 +57,11 @@ class OpenApiException extends CakeException {
      * @return class Class that contans errors codes and messages
      */
     protected function GetErrorClass() {
-        $errorclass = Configure::read('OpenApi.ErrorClass');
-        if(!empty($errorclass)) {
-            if(!class_exists($errorclass)) {
-                $errorclass = null;
-            }
-        }
-        if(empty($errorclass)) {
+        if(!empty(Configure::read('OpenApi.ErrorClass'))) {
+            return Configure::read('OpenApi.ErrorClass');
+        } else {
             $this->log('ApiError class not found!, no message auto filled in');
-            $errorclass = 'OpenApi\Error\OpenApiError';
+            return 'OpenApi\Error\OpenApiError';
         }
-        return $errorclass;
     }
 }

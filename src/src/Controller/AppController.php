@@ -18,7 +18,7 @@ use App\Controller\AppController as BaseController;
 use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Core\Configure;
-
+use Cake\Http\Exception\UnauthorizedException;
 use OpenApi\Lib\ApiParameterValidator;
 
 /**
@@ -52,13 +52,14 @@ use OpenApi\Lib\ApiParameterValidator;
  * @ToDo: Test paging - shouldn't be part of the plugin, but good idea to test if it works together with OpenApi
  * @ToDo: Add config setting for picking the default output method xml/json
  *
- *
  * @ToDo document: convert the cakephp2 docs in cakephp3 - config etc is different + some feature have not yet been implemented
  * @ToDo document: in the ErrorHandling sample add a sample for extending the ApiError class(currently it's pointing to the validation sample for that)
  * @ToDo document: in the ErrorHandling sample add an example on how to manipulate the http status codes for errors
  * @ToDo document: in the REST Routing sample, show an example on how to modify the default routings and regex that only uses numbers by default
  * @ToDo document: that error codes will be set in the controller $this->ExitCode and $this->ExitMessage
+ * 
  * @ToDo: Unit tests
+ * @ToDo: use objects for authinfo/context
  */
 class AppController extends BaseController {
     /**
@@ -89,9 +90,10 @@ class AppController extends BaseController {
      */
     public function initialize() {
         parent::initialize();
-
-		$this->loadComponent('OpenApi.ApiAuth');
-		$this->loadComponent('RequestHandler');
+        
+        Configure::write("OpenApi.Api", true);
+        $this->loadComponent('OpenApi.ApiAuth');
+        $this->loadComponent('RequestHandler');
     }
 
 	/**
@@ -100,28 +102,24 @@ class AppController extends BaseController {
      */
     public function beforeFilter(Event $event) {
         $this->debug('');
-        $this->debug('');
         $this->debug('-----------------------------------------------');
         $this->debug('------------START RECEIVING API CALL-----------');
         $this->debug('-----------------------------------------------');
+
         $this->debug('Api Call Received - Start Handling');
         parent::beforeFilter($event);
 
         // -- Make all parameter keys lower case & merge the request data(post) with the query(get)
-        if(isset($this->request->query)) { $this->request->query = array_change_key_case($this->request->query); }
-        if(isset($this->request->data)) { $this->request->data = array_change_key_case($this->request->data); }
-        $this->request->query = array_merge($this->request->query, $this->request->data);
-
-        $this->Params = $this->request->query;
+        $this->Params = array_merge(array_change_key_case($this->request->getQuery()), array_change_key_case($this->request->getData()));
 
         $this->debug('Request: '.$_SERVER['HTTP_HOST'].urldecode($_SERVER['REQUEST_URI']));
         $this->debug('Recieved:');
-        $this->debug($this->request->query);
+        $this->debug($this->Params);
 
         //do auth
-        $this->_authenticate();
-        $this->_authorize();
-        $this->_checkParams();
+        $authinfo  = $this->_authenticate();
+        $this->_authorize($authinfo);
+        $this->_checkParams($authinfo);
     }
 
     /**
@@ -131,8 +129,7 @@ class AppController extends BaseController {
      * @return void
      */
     function beforeRender(Event $event) {
-        parent::beforeRender($event);
-
+        
         //this way we have always 'something' to return, usefull for requests that don't need to return anything
         //for example a delete, http status code 200 is enough
         if(empty($this->viewVars)) {
@@ -140,24 +137,26 @@ class AppController extends BaseController {
         }
 
         /** Default to configured output type, if not configured, use json */
-        if(empty($this->request->params['ext'])) {
+        if(empty($this->request->getParam('ext'))) {
             $type = Configure::read('OpenApi.DefaultOutputFormat');
             if(empty($type)) { $type = 'json'; }
-            $this->request->params['ext'] = $type;
+            $this->request = $this->request->withParam('ext', $type);
+            $this->response = $this->response->withType($type);
             $this->RequestHandler->renderAs($this, $type);
         }
 
-        if($this->request->params['ext'] == 'xml') {
-            $this->viewVars = ['response' => $this->viewVars];
-        }
         $this->set('_serialize', true);
+        if($this->request->getParam('ext') == 'xml') {
+            $this->viewVars = ['response' => $this->viewVars];
+            $this->set('_serialize', 'response');
+        }
+        parent::beforeRender($event);
 
         //Log the end, for easier viewing log files
         $this->debug('-----------------------------------------------');
         $this->debug('-------------END HANDLING API CALL-------------');
         $this->debug('-----------------------------------------------');
-        $this->debug('');
-        $this->debug('');
+        $this->debug('');     
     }
 
 	/**
@@ -167,13 +166,13 @@ class AppController extends BaseController {
     private function _authenticate() {
         // -- Authentication methods must be configured in the controller
         if(
-            isset($this->AuthConfig[strtolower($this->request->params['action'])]) &&
-            isset($this->AuthConfig[strtolower($this->request->params['action'])]['authorize'])
+            isset($this->AuthConfig[strtolower($this->request->getParam('action'))]) &&
+            isset($this->AuthConfig[strtolower($this->request->getParam('action'))]['authorize'])
         ) {
-			$this->ApiAuth->config('authenticate', $this->AuthConfig[strtolower($this->request->params['action'])]['authorize']);
+			$this->ApiAuth->setConfig('authenticate', $this->AuthConfig[strtolower($this->request->getParam('action'))]['authorize']);
         } else {
-            $this->debug('UnAuthozied Access: no configuration found for "' . strtolower($this->request->params['action'] . '"'));
-            throw new \Cake\Network\Exception\UnauthorizedException();
+            $this->debug('UnAuthorized Access: no configuration found for "' . strtolower($this->request->getParam('action') . '"'));
+            throw new UnauthorizedException();
         }
         //Run the authentication
         $this->log('Starting Authentication...');
@@ -185,44 +184,43 @@ class AppController extends BaseController {
             AuthComponent::$sessionKey = false;
         }
         // -- Start the Authentication Process
-        if($result = $this->ApiAuth->identify()) {
-            $this->debug('Authentication Successfull using method "'.$result['authorizetype'].'"');
-
+        if($authinfo = $this->ApiAuth->identify()) {
+            $this->debug('Authentication successful using method "'.$authinfo['authorizetype'].'"');
+            return $authinfo;
 			// -- Authentication can store additional user information in '$result['params']'
-            if(isset($result) && is_array($result)) {
-            	$this->Params = array_merge($this->Params, $result);
-			}
+            /*if(isset($authinfo) && is_array($authinfo)) {               
+            	$this->Params = array_merge($this->Params, $authinfo);
+			}*/
         } else {
             $this->debug('Authentication Failed');
-            throw new \Cake\Network\Exception\UnauthorizedException(); // -- will set 401 http status code
+            throw new \Cake\Http\Exception\UnauthorizedException(); // -- will set 401 http status code
         }
     }
 
 	/**
      * Authorize part of the auth process
      */
-    private function _authorize() {
+    private function _authorize($pAuthInfo) {
         /**
          * To make authorization more scalable, a separate class is called called <Controller><Action><(optional)AuthorizeType> class
          * Here we will 'create' the class name so that the framework can locate the authorization class
          */
         if(Configure::read('OpenApi.SeparateAuthorization')) {
-            if(empty($this->Params['authorizetype'])) {
+            if(empty($pAuthInfo['authorizetype'])) {
                 $this->debug('Warning, SeparateAuthorization setting set to true, but authenticte process didn\'t set authorizetype');
             }
         } else {
-            $className = $this->Params['authorizetype'];
-            $fullClassName = "\\".Configure::read('App.namespace')."\Auth\Authorize\\".ucfirst($this->request->params['controller'])."\\".ucfirst($this->request->params['action'])."\\".$className.'Authorize';
+            $className = $pAuthInfo['authorizetype'];
+            $fullClassName = "\\".Configure::read('App.namespace')."\Auth\Authorize\\".ucfirst($this->request->getParam('controller'))."\\".ucfirst($this->request->getParam('action'))."\\".$className.'Authorize';
         }
 
-		$this->ApiAuth->config('authorize', [ $className => [
+		$this->ApiAuth->setConfig('authorize', [ $className => [
             'className' => $fullClassName,
 		]]);
 
-        $this->debug('Starting Authorization using "'.$this->Params['authorizetype'].'"');
-        $authresult = $this->ApiAuth->isAuthorized($this->Params, $this->request);
-
-        if($authresult != false) {
+        $this->debug('Starting Authorization using "'.$pAuthInfo['authorizetype'].'"');
+        $authresult = $this->ApiAuth->isAuthorized($pAuthInfo, $this->request);
+        if($authresult !== false && $authresult != null) {
             // -- The authorize classes can return additional information that will be added to the $this->Params array
             if(is_array($authresult)) {
                 $this->Params = array_merge($this->Params, $authresult);
@@ -237,16 +235,16 @@ class AppController extends BaseController {
     /**
      * Checks if all the required parameters are set and valid in the request
      */
-    private function _checkParams() {
+    private function _checkParams($pAuthInfo) {
         $params = [];
-        if(!empty($this->AuthConfig[$this->request->params['action']]['params'])) {
-            $params = array_merge($params, $this->AuthConfig[$this->request->params['action']]['params']);
+        if(!empty($this->AuthConfig[$this->request->getParam('action')]['params'])) {
+            $params = array_merge($params, $this->AuthConfig[$this->request->getParam('action')]['params']);
         }
-        if(!empty($this->AuthConfig[$this->request->params['action']][$this->Params['authorizetype']]['params'])) {
-            $params = array_merge($params, $this->AuthConfig[$this->request->params['action']][$this->Params['authorizetype']]['params']);
+        if(!empty($this->AuthConfig[$this->request->getParam('action')][$pAuthInfo['authorizetype']]['params'])) {
+            $params = array_merge($params, $this->AuthConfig[$this->request->getParam('action')][$pAuthInfo['authorizetype']]['params']);
         }
         if(!empty($params)) {
-            ApiParameterValidator::Validate($this->request->query, $params);
+            ApiParameterValidator::Validate($this->Params, $params);
         }
     }
 

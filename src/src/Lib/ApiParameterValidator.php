@@ -17,7 +17,7 @@
 
 namespace OpenApi\Lib;
 
-use Cake\Log\LogTrait;
+use Cake\Log\Log;
 
 use Cake\Validation\Validator;
 use Cake\Validation\ValidationRule;
@@ -34,8 +34,6 @@ use OpenApi\Error\Exception\ValidationException;
  */
 class ApiParameterValidator {
 
-    use LogTrait;
-
     /**
      * @var array $pData
      * @var array $pRules
@@ -45,9 +43,6 @@ class ApiParameterValidator {
             if(!is_array($rules)) {
                 $rules = array($rules => [ 'rule' => $rules ]);
             }
-            /*if(!isset($rules['notBlank'])) {
-                $rules['notBlank'] =  array('rule' => 'notBlank', 'required' => true);
-            }*/
             self::_validateField($fieldName, $rules, $pData);
         }
     }
@@ -62,10 +57,19 @@ class ApiParameterValidator {
      */
     private static function _validateField($pFieldName, $pRules, $pData) {
         $validator = new Validator();
+        foreach($pRules as $name => $params) {
+            if(isset($pRules[$name]['provider'])) {
+                $validator->setProvider('custom', $pRules[$name]['provider']);
+                $pRules[$name]['provider'] = 'custom';
+            }
+        }
+
         $validator->requirePresence($pFieldName)->notEmpty($pFieldName);
+
         foreach($pRules as $name => $rule) {
             $validator->add($pFieldName, $name, $rule);
         }
+        
         $errors = $validator->errors($pData);
         if(!empty($errors)) {
             $name = array_keys($errors[$pFieldName])[0];
