@@ -1,12 +1,12 @@
-OpenApi
-=======
+# WARNING: ARCHIVED AND NOT UPDATED PROJECT
+
+# OpenApi
 
 OpenApi is a CakePHP plugin to enable rapid development for REST Api's.
 
 Note that the CakePHP 3 version does not yet have all the features the CakePHP 2 version did
 
-Key Features
-==============
+## Key Features
 
 * Easy plug and play authentication and authorization methods 
 * Build in flexable versioning system, version what you want
@@ -23,49 +23,48 @@ In Progress:
 Was fixed in CakePHP3:
 * Supports statefull and stateless requests
 
-Examples/Tutorials and documentation
-=====================================
-
-Examples and tutorials can be found in the [OpenApi-Samples] [1] project.
-
-If needed aditional documentation will be created later.
+## Examples/Tutorials and documentation
 
 
+Samples directory
 
-Installation
-=============
+
+## Installation
+
 
 To install the plugin, download the source and put it in a your plugin directory under OpenApi.
 
 Example:
-
+```
 /path/to/your/app/plugins/OpenApi
+```
 
 Now load the plugin in your app/Config/bootstrap.php file
-
-    Plugin::load('OpenApi', [ 'routes' => true]);
+```
+Plugin::load('OpenApi', [ 'routes' => true]);
+```
 
 Make sure routes is set to 'true'
 Unlike the older version bootstrap is not needed anymore
 
-Configuration
-==============
+## Configuration
+
 
 OpenApi as a few configuration settings you can tweak to customize it's behaviour.
 
 The options are:
- - Error Handler configuration
- - Exception Handler configuration
- - Configuration setting for splitting authorization classes by authorization type
- - Versioning (ToDo)
 
-General
-========
+- Error Handler configuration
+- Exception Handler configuration
+- Configuration setting for splitting authorization classes by authorization type
+- Versioning (ToDo)
 
-    in progress
+## General
 
-Exception Renderer
-===============
+in progress
+
+## Exception Renderer
+
 
 For more details on error handling, see the [OpenApi-Samples ErrorHandling] [3] project.
 
@@ -75,7 +74,7 @@ OpenApi comes with it's own error renderer.
 This is to make sure that the correct output is given
 
 If you have your own, it's best to inherit from this one, 
-
+```
     /**
      * Configure the Error and Exception handlers used by your application.
      *
@@ -109,15 +108,13 @@ If you have your own, it's best to inherit from this one,
         'log' => true,
         'trace' => true,
     ],
-
+```
  
-Versioning
-===========
+## Versioning
 
-    ToDo
+ToDo
  
-Auth
-====
+## Auth
 
 This is only a small overview, for more details on the Auth process, see the [OpenApi-Samples Auth] [5] project.
 
@@ -158,8 +155,8 @@ For more information on this topic, see the OpenApi-Samples
 
 
 
-Getting started
-=================
+## Getting started
+
 To get started, see the [OpenApi-Samples Basic] [2] sample.
 
 Sample & tutorial list:

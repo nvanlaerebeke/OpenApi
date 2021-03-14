@@ -1,0 +1,21 @@
+2014-01-26 18:10:43 Error: 
+2014-01-26 18:10:43 Error: 
+2014-01-26 18:10:43 Error: -----------------------------------------------
+2014-01-26 18:10:43 Error: ------------START RECEIVING API CALL-----------
+2014-01-26 18:10:43 Error: -----------------------------------------------
+2014-01-26 18:10:43 Error: Api Call Received - Start Handling
+2014-01-26 18:10:43 Error: Request: vps.crazytje.be/databasefindmethod/product/
+2014-01-26 18:10:43 Error: Recieved:
+2014-01-26 18:10:43 Error: Array
+(
+)
+
+2014-01-26 18:10:43 Error: Starting Authentication...
+2014-01-26 18:10:43 Error: Authentication Successfull using method "NoAuth"
+2014-01-26 18:10:43 Error: Starting Authorization using "ProductIndexNoAuth"
+2014-01-26 18:10:43 Error: Authorization successful
+2014-01-26 18:10:44 Error: -----------------------------------------------
+2014-01-26 18:10:44 Error: -------------END HANDLING API CALL-------------
+2014-01-26 18:10:44 Error: -----------------------------------------------
+2014-01-26 18:10:44 Error: 
+2014-01-26 18:10:44 Error: 
